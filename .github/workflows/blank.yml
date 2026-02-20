@@ -21,12 +21,14 @@ jobs:
 
     - name: Install CUDA Toolkit (Only for GPU version)
       if: matrix.device == 'cuda'
-      uses: Jimver/cuda-toolkit@v0.2.14
+      # 🔥 قمنا بتحديث الإصدار هنا لتفادي أخطاء الإصدار القديم
+      uses: Jimver/cuda-toolkit@v0.2.17 
       with:
         cuda: '11.8.0' 
-        # 🔥 التعديلات الجديدة لتخطي سيرفرات جيت هب المعطلة والتحميل المباشر
         method: 'network'
+        # 🔥 إغلاق الكاش السحابي والمحلي تماماً لتخطي سيرفرات جيت هب المعطلة
         use-github-cache: 'false'
+        use-local-cache: 'false' 
 
     - name: Install PyTorch and Tools
       run: |
