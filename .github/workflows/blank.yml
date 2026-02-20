@@ -1,14 +1,11 @@
-name: Build Universal Detectron2 Wheels
+name: Build Detectron2 Wheel (CUDA Only)
 
 on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-cuda:
     runs-on: windows-2022
-    strategy:
-      matrix:
-        device: [cuda, cpu] 
 
     steps:
     - name: Checkout repo
@@ -19,51 +16,48 @@ jobs:
       with:
         python-version: '3.10'
 
-    # 🔥 الحل هنا: تفعيل مترجم C++ الخاص بويندوز (Visual Studio Compiler) 🔥
-    - name: Enable MSVC (C++ Compiler) Environment
+    - name: Enable MSVC (C++ Compiler)
       uses: ilammy/msvc-dev-cmd@v1
 
-    - name: Install CUDA Toolkit (Only for GPU version)
-      if: matrix.device == 'cuda'
+    - name: Install CUDA Toolkit
       uses: Jimver/cuda-toolkit@v0.2.17
       with:
         cuda: '11.8.0' 
         method: 'network'
         use-github-cache: 'false'
-        use-local-cache: 'false' 
+        use-local-cache: 'false'
 
     - name: Install PyTorch and Tools
       run: |
         python -m pip install --upgrade pip
-        pip install ninja wheel setuptools
-        if ('${{ matrix.device }}' -eq 'cuda') {
-            pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-        } else {
-            pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        }
+        # قمنا بإزالة ninja لأنه يسبب ضغطاً على الرامات في الويندوز
+        pip install wheel setuptools
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
       shell: powershell
 
     - name: Clone Detectron2
       run: git clone https://github.com/facebookresearch/detectron2.git
 
-    - name: Build Detectron2 Wheel
+    - name: Build Detectron2 Wheel (CUDA)
       working-directory: detectron2
       run: |
         $env:DISTUTILS_USE_SDK = "1"
-        $env:MSSdk = "1" # 🔥 أمر إضافي ضروري لويندوز 🔥
-        if ('${{ matrix.device }}' -eq 'cuda') {
-            $env:TORCH_CUDA_ARCH_LIST = "5.2;6.0;6.1;7.0;7.5;8.0;8.6;8.9;9.0+PTX"
-            $env:FORCE_CUDA = "1"
-            Write-Host "Building FULL CUDA VERSION..."
-        } else {
-            $env:FORCE_CUDA = "0"
-            Write-Host "Building UNIVERSAL CPU VERSION..."
-        }
+        $env:MSSdk = "1"
+        $env:FORCE_CUDA = "1"
+        
+        # 🔥 أسرار منع الكراش على سيرفرات جيت هب 🔥
+        $env:MAX_JOBS = "1"      # البناء ملف ملف لمنع امتلاء الرام
+        $env:USE_NINJA = "0"     # إيقاف التوازي
+        
+        # المعماريات المدعومة (تم تصفيتها لتشمل كارتك GTX 1650 وكل الكروت الحديثة)
+        $env:TORCH_CUDA_ARCH_LIST = "6.0;6.1;7.0;7.5;8.0;8.6;8.9"
+        
+        Write-Host "Building FULL CUDA VERSION SAFELY..."
         python setup.py bdist_wheel
       shell: powershell
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: detectron2-windows-${{ matrix.device }}-wheel
+        name: detectron2-windows-cuda-wheel
         path: detectron2/dist/*.whl
