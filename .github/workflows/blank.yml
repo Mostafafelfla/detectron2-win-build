@@ -24,14 +24,12 @@ jobs:
       with:
         cuda: '11.8.0' 
         method: 'network'
-        use-github-cache: 'false'
-        use-local-cache: 'false'
 
     - name: Install PyTorch and Tools
       run: |
         python -m pip install --upgrade pip
-        # قمنا بإزالة ninja لأنه يسبب ضغطاً على الرامات في الويندوز
-        pip install wheel setuptools
+        # 🔥 أعدنا ninja لأنه العمود الفقري للبناء على ويندوز 🔥
+        pip install ninja wheel setuptools
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
       shell: powershell
 
@@ -45,15 +43,19 @@ jobs:
         $env:MSSdk = "1"
         $env:FORCE_CUDA = "1"
         
-        # 🔥 أسرار منع الكراش على سيرفرات جيت هب 🔥
-        $env:MAX_JOBS = "1"      # البناء ملف ملف لمنع امتلاء الرام
-        $env:USE_NINJA = "0"     # إيقاف التوازي
+        # ترويض ninja لمنع الكراش
+        $env:MAX_JOBS = "1"
         
-        # المعماريات المدعومة (تم تصفيتها لتشمل كارتك GTX 1650 وكل الكروت الحديثة)
+        # توجيه بايثون لاستخدام مترجم مايكروسوفت صراحة
+        $env:CC = "cl"
+        $env:CXX = "cl"
+        
+        # معماريات كروت الشاشة (بما فيها 7.5 الخاصة بـ GTX 1650)
         $env:TORCH_CUDA_ARCH_LIST = "6.0;6.1;7.0;7.5;8.0;8.6;8.9"
         
-        Write-Host "Building FULL CUDA VERSION SAFELY..."
-        python setup.py bdist_wheel
+        Write-Host "Building FULL CUDA VERSION WITH NINJA SAFELY..."
+        # أضفنا -v لنرى التفاصيل إذا حدث أي شيء
+        python setup.py bdist_wheel -v
       shell: powershell
 
     - name: Upload Artifact
