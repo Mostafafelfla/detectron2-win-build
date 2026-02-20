@@ -1,4 +1,4 @@
-name: Build Detectron2 Wheel (CUDA Only)
+name: Build Detectron2 Wheel (CUDA Windows)
 
 on:
   workflow_dispatch:
@@ -16,15 +16,17 @@ jobs:
       with:
         python-version: '3.10'
 
-    # 🔥 خطوة جديدة: تثبيت بيئة التطوير C++ كاملة الخاصة بويندوز 🔥
-    - name: Install Windows C++ Build Tools
-      uses: microsoft/setup-msbuild@v2
+    # تهيئة بيئة التطوير الخاصة بويندوز
+    - name: Enable MSVC (C++ Compiler)
+      uses: ilammy/msvc-dev-cmd@v1
 
     - name: Install CUDA Toolkit
       uses: Jimver/cuda-toolkit@v0.2.17
       with:
         cuda: '11.8.0' 
         method: 'network'
+        use-github-cache: 'false'
+        use-local-cache: 'false'
 
     - name: Install PyTorch and Tools
       run: |
@@ -33,21 +35,19 @@ jobs:
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
       shell: powershell
 
-    - name: Clone Detectron2
-      run: git clone https://github.com/facebookresearch/detectron2.git
+    # 🔥 التغيير الجذري هنا: تحميل النسخة المعدلة لتتوافق مع ويندوز بدلاً من الرسمية 🔥
+    - name: Clone Detectron2 (Windows Optimized Fork)
+      run: git clone https://github.com/conansherry/detectron2.git
 
     - name: Build Detectron2 Wheel (CUDA)
       working-directory: detectron2
       run: |
         $env:DISTUTILS_USE_SDK = "1"
-        $env:MSSdk = "1"
         $env:FORCE_CUDA = "1"
-        
         $env:MAX_JOBS = "1"
-        
         $env:TORCH_CUDA_ARCH_LIST = "6.0;6.1;7.0;7.5;8.0;8.6;8.9"
         
-        Write-Host "Building FULL CUDA VERSION..."
+        Write-Host "Building Windows-Optimized CUDA VERSION..."
         python setup.py bdist_wheel
       shell: powershell
 
