@@ -5,7 +5,8 @@ on:
 
 jobs:
   build-cuda:
-    runs-on: windows-2022
+    # 🔥 الحل القاطع: استخدام ويندوز 2019 لتفادي مشكلة المترجم الحديث جداً 🔥
+    runs-on: windows-2019
 
     steps:
     - name: Checkout repo
@@ -30,9 +31,7 @@ jobs:
     - name: Install PyTorch and Tools
       run: |
         python -m pip install --upgrade pip
-        # 🔥 السر الأول: استخدام إصدار setuptools قديم لتجنب انهيار المترجم
         pip install ninja wheel "setuptools<70.0"
-        # 🔥 السر الثاني: تثبيت إصدار PyTorch (2.4.1) المستقر جداً في بناء C++
         pip install torch==2.4.1+cu118 torchvision==0.19.1+cu118 torchaudio==2.4.1+cu118 --index-url https://download.pytorch.org/whl/cu118
       shell: powershell
 
@@ -47,8 +46,6 @@ jobs:
         $env:FORCE_CUDA = "1"
         $env:MAX_JOBS = "2"
         
-        # 🔥 السر الثالث: تخفيف المعماريات لمنع امتلاء الرام.
-        # (7.5 تدعم كارت GTX 1650 بالكامل، وباقي الأرقام لسلسلة RTX الحديثة)
         $env:TORCH_CUDA_ARCH_LIST = "7.5;8.0;8.6;8.9"
         
         Write-Host "Building Official CUDA VERSION safely..."
