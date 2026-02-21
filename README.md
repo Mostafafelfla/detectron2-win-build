@@ -1,46 +1,45 @@
-Detectron2 for Windows (Pre-compiled Wheels: CUDA & CPU)
-Building Detectron2 from scratch on Windows is notoriously difficult due to C++ compilation and CUDA environment issues. This repository provides pre-built, ready-to-install .whl files for both CUDA (NVIDIA GPUs) and CPU-only environments.
+# Detectron2 for Windows (Pre-compiled Wheels: CUDA & CPU)
 
-📦 Available Packages
-You will find two ZIP files in the release/artifacts section. Extract the one that suits your hardware to get the detectron2-0.6-cp310-cp310-win_amd64.whl file:
+Building Detectron2 from scratch on Windows is notoriously difficult due to C++ compilation and CUDA environment issues. This repository provides **pre-built, ready-to-install `.whl` files** for both CUDA (NVIDIA GPUs) and CPU-only environments.
 
-detectron2-windows-cuda-wheel.zip (High Performance)
+---
 
-Target: Systems with dedicated NVIDIA GPUs.
+## 📦 Available Packages
 
-Supported Architectures: 7.5 to 8.9.
+You will find two ZIP files in the release/artifacts section. Extract the one that suits your hardware to get the `detectron2-0.6-cp310-cp310-win_amd64.whl` file:
 
-Supported GPUs: GTX 16xx series (e.g., GTX 1650), RTX 20xx, RTX 30xx, and RTX 40xx series.
+### 1. `detectron2-windows-cuda-wheel.zip` (High Performance)
+* **Target:** Systems with dedicated NVIDIA GPUs.
+* **Supported Architectures:** 7.5 to 8.9.
+* **Supported GPUs:** GTX 16xx series (e.g., GTX 1650), RTX 20xx, RTX 30xx, and RTX 40xx series.
+* *Note: Older NVIDIA GPUs (like GTX 10-series), AMD, and Intel GPUs are NOT supported by this build.*
 
-Note: Older NVIDIA GPUs (like GTX 10-series), AMD, and Intel GPUs are NOT supported by this build.
+### 2. `detectron2-windows-cpu-wheel.zip` (Universal Fallback)
+* **Target:** Any Windows PC or Laptop without a supported NVIDIA GPU.
+* **Pros:** Guaranteed to work anywhere.
+* **Cons:** Slower inference time as it relies entirely on the CPU.
 
-detectron2-windows-cpu-wheel.zip (Universal Fallback)
+---
 
-Target: Any Windows PC or Laptop without a supported NVIDIA GPU.
+## ⚙️ System Requirements
 
-Pros: Guaranteed to work anywhere.
+To successfully install and run these wheels, the target machine **must** meet the following requirements:
 
-Cons: Slower inference time as it relies entirely on the CPU.
+* **OS:** Windows 10 or Windows 11 (64-bit).
+* **Python Version:** Strictly **Python 3.10** (Make sure to check "Add Python to PATH" during installation).
+* **NVIDIA Driver (For CUDA version only):** Update your NVIDIA driver to version 522.06 or newer.
 
-⚙️ System Requirements
-To successfully install and run these wheels, the target machine must meet the following requirements:
+---
 
-OS: Windows 10 or Windows 11 (64-bit).
+## 🚀 Quick Auto-Installation (Recommended)
 
-Python Version: Strictly Python 3.10 (Make sure to check "Add Python to PATH" during installation).
-
-NVIDIA Driver (For CUDA version only): Update your NVIDIA driver to version 522.06 or newer.
-
-🚀 Quick Auto-Installation (Recommended)
 To avoid environment conflicts and version mismatches, use the provided auto-installer script.
 
-Extract the downloaded ZIP file to get the detectron2-0.6-cp310-cp310-win_amd64.whl file.
+1. Extract the downloaded ZIP file to get the `detectron2-0.6-cp310-cp310-win_amd64.whl` file.
+2. Create a new text file in the exact same folder, name it `setup.bat` (make sure the extension is `.bat`, not `.txt`).
+3. Right-click `setup.bat`, select **Edit**, and paste the following code:
 
-Create a new text file in the exact same folder, name it setup.bat (make sure the extension is .bat, not .txt).
-
-Right-click setup.bat, select Edit, and paste the following code:
-
-DOS
+```bat
 @echo off
 title Setup Detectron2 Environment
 color 0A
@@ -75,7 +74,7 @@ python -m pip install --upgrade pip
 :: 4. Install PyTorch with CUDA 11.8 support
 echo.
 echo [3/4] Installing PyTorch (2.4.1+cu118)...
-pip install torch==2.4.1+cu118 torchvision==0.19.1+cu118 torchaudio==2.4.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+pip install torch==2.4.1+cu118 torchvision==0.19.1+cu118 torchaudio==2.4.1+cu118 --index-url [https://download.pytorch.org/whl/cu118](https://download.pytorch.org/whl/cu118)
 
 :: 5. Install Detectron2 Wheel
 echo.
@@ -99,14 +98,3 @@ echo ===================================================
 echo   [SUCCESS] Environment is fully set up and ready!
 echo ===================================================
 pause
-Save the file and simply Double-Click setup.bat. It will create a clean virtual environment, download the exact PyTorch version needed, and install Detectron2 seamlessly.
-
-🛠️ Manual Installation
-If you prefer to install it manually in your own environment, run the following commands in your terminal:
-
-Bash
-# 1. Install the specific PyTorch version compatible with this build
-pip install torch==2.4.1+cu118 torchvision==0.19.1+cu118 torchaudio==2.4.1+cu118 --index-url https://download.pytorch.org/whl/cu118
-
-# 2. Install the Detectron2 wheel (change the filename if necessary)
-pip install detectron2-0.6-cp310-cp310-win_amd64.whl
